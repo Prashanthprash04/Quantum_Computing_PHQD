@@ -1,0 +1,155 @@
+{
+  "results": {
+    "unit": [
+      [
+        "UT01",
+        "Pass",
+        "Shape (32, 1, 28, 28), range [-1.000, 1.000], dtype=torch.float32"
+      ],
+      [
+        "UT02",
+        "Pass",
+        "Latent (32, 64, 7, 7), Recon (32, 1, 28, 28), AE MSE=0.001040"
+      ],
+      [
+        "UT03",
+        "Pass",
+        "Patches (16, 36, 256), grid=6x6 (36 overlapping 2x2 patches, stride=1)"
+      ],
+      [
+        "UT04",
+        "Pass",
+        "4-qubit PQC output (4, 36, 4), expectation range [-0.3759, 0.5884] (Note: 4 qubits used instead of 6 in PPT)"
+      ],
+      [
+        "UT05",
+        "Pass",
+        "Refined (16, 64, 7, 7), Latent MSE reduced 0.022403 -> 0.018213"
+      ],
+      [
+        "UT06",
+        "Pass",
+        "MLP patch MSE 0.09149->0.02569; U-Net latent MSE 0.09143->0.02279"
+      ],
+      [
+        "UT07",
+        "Pass",
+        "Noisy patch MSE=0.09149 -> EPQD-S=0.03130, EPQD-M=0.03118, EPQD-L=0.03081, EPQD-IQP=0.03142"
+      ],
+      [
+        "UT08",
+        "Pass",
+        "Loss 0.93243->0.44670, q_grad_norm=0.01171, max_delta(q=0.00500, pre=0.00500, post=0.00500)"
+      ],
+      [
+        "UT09",
+        "Pass",
+        "32 samples: Noisy(MSE=0.00426, PSNR=23.71dB, SSIM=0.8951) -> EPQD-L(MSE=0.00296, PSNR=25.28dB, SSIM=0.9201)"
+      ]
+    ],
+    "integration": [
+      [
+        "IT01",
+        "Pass",
+        "M1 latent (16, 64, 7, 7) -> M2 patches (16, 36, 256) -> PQC (4, 36, 4)"
+      ],
+      [
+        "IT02",
+        "Pass",
+        "M2 PQC (4, 36, 4) -> patches_to_latent (4, 4, 7, 7) -> StitchingCNN (4, 64, 7, 7)"
+      ],
+      [
+        "IT03",
+        "Pass",
+        "M4 MLP->fold->M3 Stitch (16, 64, 7, 7), MSE=0.01978; U-Net->M3 Stitch (16, 64, 7, 7), MSE=0.02271"
+      ],
+      [
+        "IT04",
+        "Pass",
+        "Shared noisy latent (16, 64, 7, 7): U-Net=0.02282, MLP=0.02147, EPQD-L=0.02657"
+      ],
+      [
+        "IT05",
+        "Pass",
+        "M1+M5 End-to-end recon (16, 1, 28, 28), PSNR=25.81dB, SSIM=0.9375"
+      ]
+    ],
+    "system": [
+      [
+        "ST01",
+        "Pass",
+        "Full 5-module sequence executed; Recon (16, 1, 28, 28), MSE=0.00269, PSNR=25.70dB, SSIM=0.9361"
+      ],
+      [
+        "ST02",
+        "Pass",
+        "EPQD-S(MSE=0.00271, PSNR=25.68dB, SSIM=0.9356); EPQD-M(MSE=0.00269, PSNR=25.71dB, SSIM=0.9365); EPQD-L(MSE=0.00282, PSNR=25.50dB, SSIM=0.9367); EPQD-IQP(MSE=0.00270, PSNR=25.69dB, SSIM=0.9382)"
+      ],
+      [
+        "ST03",
+        "Pass",
+        "2-epoch hybrid training on 288 patches: Loss 0.73750->0.38227, q_weights max_delta=0.00995"
+      ],
+      [
+        "ST04",
+        "Partially Verified",
+        "Generated (8, 1, 28, 28) from N(0,1) noise (pixel std=0.1952); model is trained as single-step sigma=0.3 denoiser rather than multi-step DDPM from pure noise"
+      ],
+      [
+        "ST05",
+        "Pass",
+        "32 samples evaluated: U-Net(MSE=0.00373, PSNR=24.28dB, SSIM=0.9180), MLP(MSE=0.00245, PSNR=26.12dB, SSIM=0.9306), EPQD-L(MSE=0.00294, PSNR=25.32dB, SSIM=0.9202)"
+      ]
+    ]
+  },
+  "eval_rows": [
+    [
+      "Conv-AE Clean",
+      0.000259984954027459,
+      35.850517849981294,
+      0.98902428150177
+    ],
+    [
+      "Noisy (sigma=0.3)",
+      0.004164828918874264,
+      23.804028336605235,
+      0.8968645334243774
+    ],
+    [
+      "MLP",
+      0.002445939229801297,
+      26.11554337360984,
+      0.9306498765945435
+    ],
+    [
+      "U-Net",
+      0.0037289608735591173,
+      24.284121734867803,
+      0.9179609417915344
+    ],
+    [
+      "EPQD-S",
+      0.003001890843734145,
+      25.226051038401884,
+      0.9186099171638489
+    ],
+    [
+      "EPQD-M",
+      0.0029801654163748026,
+      25.257596294052867,
+      0.9199523329734802
+    ],
+    [
+      "EPQD-L",
+      0.002940148813650012,
+      25.316306875091254,
+      0.9202117323875427
+    ],
+    [
+      "EPQD-IQP",
+      0.0030092033557593822,
+      25.21548462542412,
+      0.918678879737854
+    ]
+  ]
+}

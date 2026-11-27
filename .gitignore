@@ -1,0 +1,16 @@
+# Dataset (auto-downloaded by torchvision)
+data/
+
+# Intermediate numpy caches
+outputs/*.npy
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# IDE / OS
+.vscode/
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
