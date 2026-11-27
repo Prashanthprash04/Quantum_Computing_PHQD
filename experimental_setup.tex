@@ -1,0 +1,85 @@
+\section{Experimental Setup}\label{sec:setup}
+
+\subsection{Dataset}
+All experiments use Fashion-MNIST~\cite{fmnist}, which consists of grayscale $28\times28$ images of clothing in ten classes, with 60{,}000 training and 10{,}000 test images. The standard training and test splits are loaded through \texttt{torchvision.datasets.FashionMNIST}. Pixel values are converted to tensors and normalized using mean 0.5 and standard deviation 0.5, which maps them to $[-1,1]$. No separate validation split is held out; the test split is used for monitoring during training and for the final evaluation.
+
+The autoencoder is trained on the full training split with batch size 128. The downstream denoisers are trained on latent data built from a limited number of batches, to keep the simulation of the quantum circuits tractable. The patch-wise EPQD models use 30 training batches (3{,}840 images, or 138{,}240 patches) and 8 test batches (1{,}024 images, or 36{,}864 patches), and the quantum fine-tuning stage uses a random subset of 8{,}000 training patches and 2{,}000 test patches. The MLP and U-Net baselines use 50 training batches (6{,}400 images) and 10 test batches (1{,}280 images). The standalone stitching network uses 100 training and 20 test batches. These limits mean that the downstream experiments do not use the entire dataset.
+
+\subsection{Noise Model}
+The patch denoising modules generate noisy latent targets on the fly:
+\begin{equation}
+    \tilde p=p+\epsilon,\qquad \epsilon\sim\mathcal{N}(0,0.3^2I).
+\end{equation}
+This perturbation is applied to latent features, not to raw image pixels. The standalone latent refinement training of Module 3 uses a smaller noise standard deviation of 0.15, whereas all comparisons between the EPQD models, the MLP and the U-Net use 0.3.
+
+\subsection{Hardware and Software Environment}
+The models are implemented in PyTorch (version 2.1 or later) with torchvision, and the quantum circuits are written in PennyLane (version 0.40 or later) and simulated with the classical \texttt{default.qubit} state-vector simulator, so no quantum hardware or hardware noise is involved. Training runs on a GPU when one is available and otherwise on the CPU, and the FID evaluation runs on the CPU. The experiments were run on [hardware description], and the exact library versions are listed in the \texttt{requirements.txt} file of the released code.
+
+\subsection{Model Configuration and Hyperparameters}
+Table~\ref{tab:hyper} lists the training settings of each model. All models are trained with Adam and a cosine annealing learning-rate schedule. The architectures are described in Section~\ref{sec:method}: the standard EPQD models use 4 qubits and 1, 2 or 3 layers (EPQD-S, EPQD-M, EPQD-L) or an IQP-style encoding with 2 layers (EPQD-IQP), and EPQD-6Q-V2 uses 6 qubits and 3 layers with data re-uploading and $X$, $Y$, $Z$ readout. The patches are $2\times2$ with stride one, which gives 36 patches of 256 values per image.
+
+\begin{table}[t]
+\centering
+\caption{Training settings of all models. Learning rates for multi-stage models are given per stage.}
+\label{tab:hyper}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{Epochs} & \textbf{Learning rate} & \textbf{Batch size}\\
+\midrule
+Conv-AE & 20 & $10^{-3}$ & 128\\
+StitchingCNN & 15 & $10^{-3}$ & 128\\
+MLP, U-Net & 20 & $10^{-3}$ & 128\\
+EPQD (warm-up, fine-tune) & 10, 8 & $10^{-3}$, $3\times10^{-3}$ & 128\\
+EPQD-6Q-V2 (three phases) & 15, 8, 6 & $10^{-3}$, $2\times10^{-3}$, $5\times10^{-4}$ & 128, 128, 16\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Training Runs and Reproducibility}
+Each model is trained once, so the reported results come from a single run without repetitions, and no confidence intervals are given. A fixed random seed of 42 is used for the FID evaluation and for the noise in the V2 benchmark. The differences between the four 4-qubit configurations are small, and they should not be read as statistically established without repeated runs with different seeds.
+
+\subsection{Baselines and Comparison Conditions}
+The EPQD models are compared with the patch-wise MLP and the U-Net of Module 4. All methods are given the same noisy latent maps, produced with $\sigma=0.3$ by the same frozen autoencoder, and all use MSE as the training loss. The decoded clean latent map (Conv-AE clean) is the best result a latent denoiser can reach, and the decoded noisy latent map is the lower reference. Because the classical layers of the EPQD models contain many more trainable parameters than the circuit, we also remove the circuit output in an ablation analysis to measure how much the model relies on it.
+
+\subsection{Evaluation Protocol and Metrics}
+The standard comparison reports the test MSE of the EPQD configurations and, where saved checkpoints are available, of the MLP and U-Net. The V2 benchmark evaluates 64 test images using a fixed seed of 42 for the comparison noise. It computes latent MSE, image MSE, RMSE, MAE, PSNR, SSIM and cosine similarity, after the decoded outputs have been mapped to $[0,1]$ and clipped to that range. The FID is computed on 1{,}000 test images. The metrics are defined as follows.
+
+\paragraph{Mean Squared Error (MSE).}
+\begin{equation}
+    \operatorname{MSE}(x,\hat x)
+    =\frac{1}{N}\sum_{i=1}^{N}(x_i-\hat x_i)^2.
+\end{equation}
+
+\paragraph{Root Mean Squared Error (RMSE).}
+\begin{equation}
+    \operatorname{RMSE}=\sqrt{\operatorname{MSE}}.
+\end{equation}
+
+\paragraph{Mean Absolute Error (MAE).}
+\begin{equation}
+    \operatorname{MAE}=\frac{1}{N}\sum_{i=1}^{N}|x_i-\hat x_i|.
+\end{equation}
+
+\paragraph{Peak Signal-to-Noise Ratio (PSNR).}
+For image values in $[0,1]$,
+\begin{equation}
+    \operatorname{PSNR}=10\log_{10}\left(\frac{1}{\operatorname{MSE}}\right).
+\end{equation}
+
+\paragraph{Structural Similarity (SSIM).}
+SSIM compares local luminance, contrast and structure. The V2 code implements a differentiable SSIM expression using a $7\times7$ Gaussian window with standard deviation 1.5. Higher SSIM indicates stronger structural similarity.
+
+\paragraph{Cosine Similarity.}
+The V2 benchmark also computes the mean cosine similarity between flattened reconstructed and reference images:
+\begin{equation}
+    \operatorname{CosSim}(x,\hat x)=
+    \frac{x^\top\hat x}{\|x\|_2\|\hat x\|_2}.
+\end{equation}
+
+\paragraph{Fr\'echet Inception Distance (FID).}
+The FID compares the distributions of Inception-V3 features of real and reconstructed images, modelled as Gaussians with means $\mu_r,\mu_g$ and covariances $\Sigma_r,\Sigma_g$:
+\begin{equation}
+    \operatorname{FID}=\|\mu_r-\mu_g\|_2^2+
+    \operatorname{Tr}\!\left(\Sigma_r+\Sigma_g-2(\Sigma_r\Sigma_g)^{1/2}\right).
+\end{equation}
+Lower FID indicates that the reconstructed images are statistically closer to the real ones.
