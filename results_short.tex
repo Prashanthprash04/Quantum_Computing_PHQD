@@ -30,16 +30,12 @@ At patch level, the noisy input has an MSE of 0.0915. The EPQD models reduce it 
 \subsection{Qualitative Results}
 Figure~\ref{fig:qualitative} shows reconstructions of the same test images for the original, the noisy latent, the baselines and the EPQD models.
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\IfFileExists{PHQD_full_comparison.png}{
-  \includegraphics[width=\linewidth]{PHQD_full_comparison.png}
-}{
-  \fbox{\parbox[c][3.0cm][c]{0.92\linewidth}{\centering Insert \texttt{outputs/module5/PHQD\_full\_comparison.png} here.}}
-}
+\includegraphics[width=0.72\textwidth]{PHQD_full_comparison.png}
 \caption{Reconstructions of the original image, the noisy latent, the classical baselines and the EPQD variants.}
 \label{fig:qualitative}
-\end{figure}
+\end{figure*}
 
 \subsection{Discussion}
 Deeper circuits help only slightly: going from one to three layers lowers the image MSE from 0.00300 to 0.00294. The IQP-style encoding is not better than the basic ring circuit with the same depth (0.00301 against 0.00298). Each model was trained once, so these small gaps cannot be called significant. The main result is that the best classical baseline, the MLP, beats every 4-qubit hybrid model, which agrees with the finding of Bowles et al.~\cite{bowles} that strong classical models are hard to beat. This is also why classical baselines and ablations are needed before crediting the circuit. EPQD-6Q-V2 changes several things at once (qubit count, repeated encoding, three measurement bases, wider projections, joint stitching fine-tuning and an SSIM loss), so any gain over the 4-qubit models cannot be assigned to the qubit count alone.
