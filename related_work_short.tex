@@ -1,0 +1,26 @@
+\section{Related Work}\label{sec:related}
+Diffusion models learn to reverse a gradual noising process and give high-quality image synthesis~\cite{ho}. Latent diffusion makes them cheaper by denoising the compact latent space of an autoencoder instead of pixels~\cite{rombach}. Both are fully classical, and we adopt only the idea of denoising a latent representation, with a U-Net~\cite{unet} as a convolutional baseline.
+
+Several studies place quantum circuits inside diffusion models. K\"olle et al.~\cite{kolle} showed that a dense circuit with about 1,000 parameters beats equal-size classical networks on $8\times8$ MNIST, although a much larger U-Net is still best. Cacioppo et al.~\cite{cacioppo} used circuits as the denoiser and found that working on autoencoder latents gives far better FID than a fully quantum model, but only on small MNIST images and with a mostly qualitative classical comparison. Zhang et al.~\cite{zhang} and Parigi et al.~\cite{parigi} studied quantum states and toy data, and Huang et al.~\cite{huang} generated digit images with a quantum GAN on hardware. These works show that quantum circuits can be trained for generation and denoising, but they use small data, quantum data or a different task. None of them is a patch-based latent image denoiser.
+
+Other studies deal with circuit design. Feature-map encodings~\cite{havlicek} and data re-uploading~\cite{salinas,schuld} increase what a circuit can represent, and we use both ideas. Deep random circuits can have vanishing gradients~\cite{mcclean}, so we keep our circuits shallow. Bowles et al.~\cite{bowles} found that simple classical models often beat quantum ones and that removing entanglement often does not hurt, which is why we add strong classical baselines and remove the circuit output in an ablation.
+
+In short, earlier work shows that quantum denoisers are possible, but it does not tell which part of a hybrid model gives the gain. PHQD fills this gap by comparing several circuit designs with classical baselines on patch-wise latent denoising and by measuring the effect of removing the circuit. Table~\ref{tab:related} summarises the closest studies.
+
+\begin{table}[t]
+\caption{Summary of closely related studies.}\label{tab:related}
+\centering\scriptsize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.45\textwidth}@{}}
+\toprule
+Study & Method & Limitation for our problem\\
+\midrule
+Rombach et al.~\cite{rombach} & Classical latent diffusion & No quantum component\\
+K\"olle et al.~\cite{kolle} & Circuits in diffusion & Small MNIST; larger U-Net still best\\
+Cacioppo et al.~\cite{cacioppo} & Circuit denoiser, latent variant & Small scale; limited classical comparison\\
+Zhang et al.~\cite{zhang} & Step-wise quantum diffusion & Quantum data; few qubits\\
+Huang et al.~\cite{huang} & Quantum GAN on hardware & Simple benchmark; not a denoiser\\
+Bowles et al.~\cite{bowles} & Large benchmarking study & Classification only\\
+\bottomrule
+\end{tabular}
+\end{table}
