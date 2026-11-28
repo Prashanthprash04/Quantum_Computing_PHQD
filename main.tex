@@ -1,0 +1,32 @@
+\documentclass[10pt,twocolumn]{article}
+\usepackage[a4paper,margin=0.8in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+
+\title{PHQD: A Patch-Based Hybrid Quantum--Classical Framework for Latent Image Denoising}
+\author{Author Name\\ Institution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present PHQD, a patch-based hybrid quantum--classical framework that removes Gaussian noise from the latent maps of a convolutional autoencoder on Fashion-MNIST. Overlapping latent patches are denoised by models that combine classical projections with a parameterized quantum circuit. We compare four 4-qubit configurations and a 6-qubit model with data re-uploading against MLP and U-Net baselines. All denoisers improve on the noisy input, but the best classical baseline matches or beats the quantum models, which shows why strong baselines are needed before crediting a quantum circuit.
+\end{abstract}
+
+\input{introduction}
+\input{related_work_short}
+\input{preliminaries_short}
+\input{methodology_short}
+\input{experimental_setup_short}
+\input{results_short}
+\input{limitations_short}
+\input{conclusion_short}
+
+\input{references_list}
+
+\end{document}
