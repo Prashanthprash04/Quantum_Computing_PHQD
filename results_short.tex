@@ -37,6 +37,7 @@ Figure~\ref{fig:qualitative} shows reconstructions of the same test images for t
 \label{fig:qualitative}
 \end{figure*}
 
+\FloatBarrier
 \subsection{Discussion}
 Deeper circuits help only slightly: going from one to three layers lowers the image MSE from 0.00300 to 0.00294. The IQP-style encoding is not better than the basic ring circuit with the same depth (0.00301 against 0.00298). Each model was trained once, so these small gaps cannot be called significant. The main result is that the best classical baseline, the MLP, beats every 4-qubit hybrid model, which agrees with the finding of Bowles et al.~\cite{bowles} that strong classical models are hard to beat. This is also why classical baselines and ablations are needed before crediting the circuit. EPQD-6Q-V2 changes several things at once (qubit count, repeated encoding, three measurement bases, wider projections, joint stitching fine-tuning and an SSIM loss), so any gain over the 4-qubit models cannot be assigned to the qubit count alone.
 
