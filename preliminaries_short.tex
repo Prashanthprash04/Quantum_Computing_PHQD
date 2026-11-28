@@ -1,0 +1,12 @@
+\section{Preliminaries}\label{sec:prelim}
+This section gives the basic ideas behind PHQD.
+
+A convolutional autoencoder compresses an image into a small latent map and rebuilds it from that map~\cite{rombach}. Ours maps a $28\times28$ image to a latent map $z$ of size $64\times7\times7$. We add Gaussian noise, $\tilde z=z+\sigma\epsilon$ with $\sigma=0.3$, as in diffusion models~\cite{ho}, and train a denoiser to recover $z$ by minimising the mean squared error (MSE). Because the latent map has 3,136 values, it is split into $2\times2$ patches with stride one, which gives 36 overlapping patches of 256 values. Each patch is denoised separately, and overlapping values are averaged when the map is put back together.
+
+A qubit is a two-level quantum system, and quantum gates change its state. A rotation gate $R_Y(\theta)$ turns a number $\theta$ into a state change, and a CNOT gate links two qubits through entanglement. Measuring a qubit gives an expectation value between $-1$ and $1$. A parameterized quantum circuit (PQC) encodes input data as gate angles, applies layers of trainable gates and returns such expectation values~\cite{cerezo,benedetti}. Its weights are trained by gradient descent like network weights. We simulate all circuits on a classical computer, so hardware noise~\cite{preskill} is not included, and we keep the circuits shallow because deep ones can be hard to train~\cite{mcclean}.
+
+We compare three ways to feed data into a circuit. Angle encoding sets one rotation angle per feature. The IQP-style encoding~\cite{havlicek} adds two-qubit interactions between features. Data re-uploading~\cite{salinas} repeats the encoding in every layer, which lets the model represent more complex functions~\cite{schuld}. We can also measure $X$, $Y$ and $Z$ on each qubit instead of $Z$ only, which triples the number of outputs.
+
+In our hybrid denoiser, a classical network turns each patch into $n$ angles, the PQC processes them, and a second classical network, with a linear shortcut from the input, rebuilds the patch. A small stitching network can then refine the rebuilt latent map. As baselines we use a multilayer perceptron (MLP) on patches and a U-Net~\cite{unet} on the full latent map, which show how far a purely classical model can go.
+
+We measure quality with MSE, the peak signal-to-noise ratio (PSNR) and the structural similarity index (SSIM), and with the Fr\'echet Inception Distance (FID), which compares the feature statistics of real and reconstructed images. Lower MSE and FID and higher PSNR and SSIM are better.
