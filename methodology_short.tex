@@ -22,7 +22,7 @@ We use Fashion-MNIST~\cite{fmnist} with 60{,}000 training and 10{,}000 test gray
 A $2\times2$ window with stride one over the $7\times7$ grid gives 36 overlapping patches per image, each flattened to $64\times2\times2=256$ values.
 
 \subsection{Convolutional Autoencoder}
-The encoder has two strided convolutions ($1\rightarrow32\rightarrow64$ channels, $4\times4$ kernel, stride 2, padding 1), each followed by batch normalization and LeakyReLU, and maps an image to a $64\times7\times7$ latent map. The decoder mirrors it with two transposed convolutions and a Tanh output. It is trained with MSE loss and Adam (learning rate $10^{-3}$, cosine annealing) for 20 epochs with batch size 128.
+The encoder has two strided convolutions ($1\rightarrow32\rightarrow64$ channels, $4\times4$ kernel, stride 2, padding 1), each followed by batch normalization and LeakyReLU, and maps an image to a $64\times7\times7$ latent map. The decoder mirrors it with two transposed convolutions and a Tanh output. It is trained with MSE loss and Adam~\cite{kingma2014} (learning rate $10^{-3}$, cosine annealing) for 20 epochs with batch size 128.
 
 \subsection{EPQD Denoiser}
 For each patch $p$, a classical pre-projection ($256\rightarrow128\rightarrow n$) with a Tanh output gives $n$ values that are mapped to rotation angles in $[0,\pi]$:
@@ -37,7 +37,7 @@ A classical post-projection ($n\rightarrow128\rightarrow256\rightarrow256$) and 
 \begin{equation}
     \hat p=g_{\mathrm{post}}(q(p))+W_rp+b_r.
 \end{equation}
-The circuit is simulated with PennyLane on \texttt{default.qubit} using backpropagation. The IQP variant (EPQD-IQP) replaces the first step with Hadamard gates, data-dependent $R_Z$ rotations and Ising-$ZZ$ interactions. Table~\ref{tab:configs} lists the four 4-qubit configurations.
+The circuit is simulated with PennyLane~\cite{pennylane} on \texttt{default.qubit} using backpropagation. The IQP variant (EPQD-IQP) replaces the first step with Hadamard gates, data-dependent $R_Z$ rotations and Ising-$ZZ$ interactions. Table~\ref{tab:configs} lists the four 4-qubit configurations.
 
 \begin{table}[t]
 \centering
@@ -82,4 +82,4 @@ The standard EPQD models are trained in two stages with MSE loss, Adam, cosine a
 \subsection{Baselines and Evaluation}
 The MLP baseline denoises flattened 256-value patches ($256\rightarrow512\rightarrow512\rightarrow256\rightarrow256$ with LayerNorm, GELU, dropout 0.1 and a residual connection). The U-Net baseline denoises the full $64\times7\times7$ latent map with two encoder blocks (64 and 128 channels), a 256-channel bottleneck and a decoder with skip connections. Both are trained for 20 epochs with MSE loss, Adam at $10^{-3}$ and batch size 128. All denoisers receive the same noisy latent maps with $\sigma=0.3$, and the decoded clean and noisy latent maps serve as upper and lower references.
 
-We report MSE, PSNR $=10\log_{10}(1/\mathrm{MSE})$ and SSIM between the decoded and original images mapped to $[0,1]$ on test images, and the Fr\'echet Inception Distance (FID) from Inception-V3 features of 1{,}000 test images. Lower MSE and FID and higher PSNR and SSIM are better.
+We report MSE, PSNR $=10\log_{10}(1/\mathrm{MSE})$ and SSIM~\cite{wang2004} between the decoded and original images mapped to $[0,1]$ on test images, and the Fr\'echet Inception Distance (FID) from Inception-V3 features of 1{,}000 test images. Lower MSE and FID and higher PSNR and SSIM are better.
